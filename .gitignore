@@ -1,0 +1,33 @@
+# Maven build output
+target/
+
+# Distribution artifacts (gerados pelo build)
+dist/
+installer/windows/jre/
+installer/mac/jre/
+installer/windows/print-bridge.jar
+installer/mac/print-bridge.jar
+installer/inno/Output/
+
+# WinSW binary (baixado pelo build script)
+installer/windows/print-bridge.exe
+
+# Logs gerados em testes locais
+logs/
+installer/*/logs/
+*.log
+
+# Java compiled
+*.class
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,62 @@
+============================================================
+  ZAPI10 PRINT BRIDGE - INSTALACAO NO macOS
+============================================================
+
+O QUE FAZ:
+  Mesmo papel da versao Windows: deixa o app Zapi10 imprimir
+  na impressora local conectada neste Mac (USB ou rede).
+
+  Roda em background como LaunchAgent. Inicia automatico
+  quando voce loga no Mac.
+
+PRE-REQUISITO:
+  A impressora ja deve estar instalada em
+    Configuracoes do Sistema -> Impressoras e Scanners
+  e configurada como "Padrao". Imprima um documento qualquer
+  antes de instalar isto, pra confirmar que esta funcionando.
+
+INSTALACAO (apenas 1 vez):
+  1) Extraia este ZIP em algum lugar (Desktop, Downloads, etc)
+  2) Duplo-clique em "install.command"
+  3) O Terminal abre. Vai pedir sua senha de administrador (sudo).
+  4) Aguarde "INSTALACAO CONCLUIDA COM SUCESSO"
+  5) Pronto.
+
+  OBS: Na primeira vez, o macOS pode bloquear o script com
+  uma mensagem do Gatekeeper ("nao pode ser aberto porque o
+  desenvolvedor nao pode ser verificado"). Se aparecer:
+    - Clique direito no install.command
+    - Escolha "Abrir"
+    - Confirme "Abrir" no popup
+
+VERIFICAR SE ESTA FUNCIONANDO:
+  Duplo-clique em "view-logs.command".
+  Deve mostrar linhas como:
+    [INFO] Listening on TCP port 9100
+    [INFO] Impressora alvo: 'Nome da Sua Impressora'
+
+CONFIGURAR NO APLICATIVO ZAPI10 (mobile):
+  No celular (no mesmo Wi-Fi que este Mac):
+  1) Menu lateral -> Impressoras
+  2) Adicionar Impressora -> Rede (IP)
+  3) Toque em "Descobrir impressora na rede"
+  4) Selecione o IP do Mac (porta 9100)
+  5) Largura do papel (58mm ou 80mm)
+  6) Salvar -> "Teste" -> recibo deve sair na impressora.
+
+DESINSTALAR:
+  Duplo-clique em "uninstall.command".
+
+ONDE FICAM OS LOGS:
+  /usr/local/zapi10-print-bridge/logs/
+
+PROBLEMAS COMUNS:
+  - "Permission denied" no install.command -> rodar via:
+      Terminal -> chmod +x install.command -> ./install.command
+  - "Saiu papel em branco" -> reconfigure a impressora em
+    Configuracoes do Sistema usando driver "Generic PostScript"
+    ou "Generic PCL Printer" em vez do driver especifico.
+  - Logs vazios -> rodar 'launchctl list | grep zapi10' no
+    Terminal pra ver se o LaunchAgent esta carregado.
+
+============================================================

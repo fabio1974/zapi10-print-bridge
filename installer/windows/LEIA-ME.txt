@@ -1,0 +1,67 @@
+============================================================
+  ZAPI10 PRINT BRIDGE - INSTALACAO NO WINDOWS
+============================================================
+
+O QUE FAZ:
+  Permite que o aplicativo Zapi10 imprima na impressora local
+  (USB ou de rede) configurada neste computador.
+
+  Roda em background como servico Windows. Inicia automatico
+  quando o computador liga. Nao precisa ficar aberto.
+
+PRE-REQUISITO:
+  A impressora ja deve estar instalada e configurada como
+  "Padrao" no Windows (Configuracoes -> Dispositivos -> Impressoras).
+  Teste imprimindo um documento qualquer antes de instalar isto.
+
+INSTALACAO (apenas 1 vez):
+  1) Extraia este ZIP em "C:\Zapi10\" ou outra pasta de sua preferencia
+  2) Clique direito em "install.bat"
+  3) Escolha "Executar como administrador"
+  4) Confirme "Sim" quando o Windows perguntar
+  5) Aguarde a mensagem "INSTALACAO CONCLUIDA"
+  6) Pronto! O servico ja esta rodando.
+
+VERIFICAR SE ESTA FUNCIONANDO:
+  - Clique duplo em "view-logs.bat" - abre o log mais recente
+  - Procure por linhas com "Listening on TCP port 9100" e
+    "Impressora alvo:" - se aparecerem, esta tudo OK.
+
+CONFIGURAR NO APLICATIVO ZAPI10:
+  No celular, dentro do app Zapi10:
+  1) Menu lateral -> Impressoras
+  2) Adicionar Impressora -> Rede (IP)
+  3) Toque em "Descobrir impressora na rede"
+  4) Selecione o IP que aparecer (sera o IP deste PC + porta 9100)
+  5) Selecione largura do papel (58mm ou 80mm)
+  6) Salvar e clicar em "Teste" - deve sair recibo na impressora.
+
+DESINSTALAR:
+  Clique direito em "uninstall.bat" -> Executar como administrador
+
+ONDE FICAM OS LOGS:
+  Pasta "logs" dentro deste diretorio.
+  Tem rotacao diaria (1 arquivo por dia, mantem 7 dias).
+
+PROBLEMAS COMUNS:
+  - "Saiu papel em branco" -> a impressora padrao no Windows
+    nao esta configurada como driver "Generico / Apenas texto"
+    ou similar. Reconfigure ela como "Generic / Text Only".
+
+  - "App nao acha o IP no Descobrir" -> verifique:
+      a) celular e PC estao na mesma rede Wi-Fi
+      b) o servico esta rodando: clique em "view-logs.bat"
+      c) o firewall do Windows nao bloqueou a porta 9100
+         (o instalador abre automaticamente, mas anti-virus
+          de terceiros pode bloquear)
+
+  - "Recibo sai com caracteres estranhos" -> o driver instalado
+    no Windows pode estar processando os bytes ESC/POS. Tente
+    instalar a impressora como "Generic / Text Only Printer"
+    via Painel de Controle -> Dispositivos.
+
+SUPORTE:
+  Se algo nao funcionar, copie o conteudo de "view-logs.bat"
+  e mande pro suporte do Zapi10 junto com a descricao do problema.
+
+============================================================

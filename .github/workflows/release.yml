@@ -1,0 +1,135 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build jar
+        run: mvn -B -q package
+        shell: bash
+
+      - name: Create minimal JRE for Windows (jlink)
+        shell: bash
+        run: |
+          jlink \
+            --add-modules java.base,java.desktop,java.logging \
+            --strip-debug --no-man-pages --no-header-files --compress=zip-9 \
+            --output installer/windows/jre
+
+      - name: Stage windows files
+        shell: bash
+        run: |
+          cp target/print-bridge.jar installer/windows/
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Compile installer
+        shell: cmd
+        run: |
+          mkdir installer\inno\Output
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\inno\installer.iss
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zapi10PrintBridgeSetup-windows
+          path: installer/inno/Output/Zapi10PrintBridgeSetup.exe
+
+      - name: Upload zip distribution
+        shell: bash
+        run: |
+          cd installer/windows
+          7z a ../../zapi10-print-bridge-windows.zip print-bridge.jar print-bridge.exe print-bridge.xml LEIA-ME.txt view-logs.bat install.bat uninstall.bat jre/
+
+      - name: Upload zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zapi10-print-bridge-windows-zip
+          path: zapi10-print-bridge-windows.zip
+
+      - name: Attach to Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            installer/inno/Output/Zapi10PrintBridgeSetup.exe
+            zapi10-print-bridge-windows.zip
+
+  build-mac-dmg:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build jar
+        run: mvn -B -q package
+
+      - name: Create minimal JRE for Mac (jlink)
+        run: |
+          jlink \
+            --add-modules java.base,java.desktop,java.logging \
+            --strip-debug --no-man-pages --no-header-files --compress=zip-9 \
+            --output installer/mac/jre
+
+      - name: Build zip
+        run: |
+          cp target/print-bridge.jar installer/mac/
+          chmod +x installer/mac/*.command
+          cd installer/mac
+          zip -qr ../../zapi10-print-bridge-mac.zip *.command *.plist *.jar LEIA-ME.txt jre/
+
+      - name: Upload zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: zapi10-print-bridge-mac-zip
+          path: zapi10-print-bridge-mac.zip
+
+      - name: Build .dmg with jpackage
+        run: |
+          mkdir -p input
+          cp target/print-bridge.jar input/
+          jpackage \
+            --type dmg \
+            --name "Zapi10PrintBridge" \
+            --app-version 1.0.0 \
+            --vendor "Zapi10" \
+            --input input \
+            --main-jar print-bridge.jar \
+            --main-class com.zapi10.printbridge.PrintBridge \
+            --java-options "-Xmx256m" \
+            --dest installer/dmg-output \
+            --mac-package-name "Zapi10PrintBridge"
+
+      - name: Upload dmg
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zapi10PrintBridge-mac-dmg
+          path: installer/dmg-output/*.dmg
+
+      - name: Attach to Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            zapi10-print-bridge-mac.zip
+            installer/dmg-output/*.dmg

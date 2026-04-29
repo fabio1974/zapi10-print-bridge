@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.zapi10.printbridge</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/zapi10-print-bridge/jre/bin/java</string>
+        <string>-jar</string>
+        <string>/usr/local/zapi10-print-bridge/print-bridge.jar</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/usr/local/zapi10-print-bridge</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PRINT_BRIDGE_PORT</key>
+        <string>9100</string>
+        <key>PRINT_BRIDGE_LOG_DIR</key>
+        <string>/usr/local/zapi10-print-bridge/logs</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/usr/local/zapi10-print-bridge/logs/launchd-stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/usr/local/zapi10-print-bridge/logs/launchd-stderr.log</string>
+</dict>
+</plist>
