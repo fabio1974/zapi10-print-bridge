@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-windows-installer:
     runs-on: windows-latest
@@ -29,6 +32,12 @@ jobs:
             --add-modules java.base,java.desktop,java.logging \
             --strip-debug --no-man-pages --no-header-files --compress=zip-9 \
             --output installer/windows/jre
+
+      - name: Download WinSW
+        shell: bash
+        run: |
+          curl -fsSL -o installer/windows/print-bridge.exe \
+            https://github.com/winsw/winsw/releases/download/v3.0.0-alpha.11/WinSW-net461.exe
 
       - name: Stage windows files
         shell: bash
