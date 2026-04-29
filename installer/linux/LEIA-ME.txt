@@ -36,9 +36,12 @@ PRE-REQUISITO:
     lpoptions -d NOME  # define como padrao
     lp -P NOME teste.txt   # imprime teste
 
-VERIFICAR SE ESTA RODANDO:
-    systemctl status zapi10-print-bridge
-    ./view-logs.sh
+VERIFICAR SE ESTA RODANDO / DESCOBRIR A PORTA:
+    ./show-status.sh
+      Mostra: servico rodando? em qual porta? quais IPs deste PC?
+
+    Tambem: systemctl status zapi10-print-bridge
+    Para logs detalhados: ./view-logs.sh
 
 CONFIGURAR NO APP ZAPI10 MOBILE:
   1) Menu lateral -> Impressoras

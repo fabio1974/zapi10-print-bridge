@@ -29,11 +29,14 @@ INSTALACAO (apenas 1 vez):
     - Escolha "Abrir"
     - Confirme "Abrir" no popup
 
-VERIFICAR SE ESTA FUNCIONANDO:
-  Duplo-clique em "view-logs.command".
-  Deve mostrar linhas como:
-    [INFO] Listening on TCP port 9100
-    [INFO] Impressora alvo: 'Nome da Sua Impressora'
+VERIFICAR SE ESTA FUNCIONANDO / DESCOBRIR A PORTA:
+  Duplo-clique em "show-status.command"
+    Mostra: servico rodando? em qual porta? quais IPs deste Mac?
+
+  Esse e o jeito mais rapido de saber qual IP:porta digitar
+  no app Zapi10 do celular.
+
+  Para logs detalhados de impressao: duplo-clique em "view-logs.command"
 
 CONFIGURAR NO APLICATIVO ZAPI10 (mobile):
   No celular (no mesmo Wi-Fi que este Mac):

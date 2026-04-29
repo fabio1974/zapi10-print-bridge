@@ -99,6 +99,7 @@ echo PORTA EM USO: !PORT!
 echo Configure no app Zapi10 mobile: ^<IP-deste-PC^>:!PORT!
 echo.
 echo Logs em: %~dp0logs
+echo Para ver porta + IPs: clique duplo em "show-status.bat"
 echo Para ver logs: clique duplo em "view-logs.bat"
 echo Para desinstalar: clique direito em "uninstall.bat" - Executar como admin
 echo.

@@ -86,6 +86,7 @@ if pgrep -f "print-bridge.jar" > /dev/null; then
     echo "Configure no app Zapi10 mobile: <IP-deste-Mac>:$PORT"
     echo ""
     echo "Logs em: $INSTALL_DIR/logs"
+    echo "Para ver porta + IPs: duplo-clique em 'show-status.command'"
     echo "Para ver logs: duplo-clique em 'view-logs.command'"
     echo "Para desinstalar: duplo-clique em 'uninstall.command'"
     echo ""

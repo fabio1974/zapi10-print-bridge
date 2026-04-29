@@ -22,10 +22,17 @@ INSTALACAO (apenas 1 vez):
   5) Aguarde a mensagem "INSTALACAO CONCLUIDA"
   6) Pronto! O servico ja esta rodando.
 
-VERIFICAR SE ESTA FUNCIONANDO:
-  - Clique duplo em "view-logs.bat" - abre o log mais recente
-  - Procure por linhas com "Listening on TCP port 9100" e
-    "Impressora alvo:" - se aparecerem, esta tudo OK.
+VERIFICAR SE ESTA FUNCIONANDO / DESCOBRIR A PORTA:
+  Clique duplo em "show-status.bat"
+    Mostra: servico rodando? em qual porta? quais IPs deste PC?
+
+  Esse e o jeito mais rapido de saber qual IP:porta digitar
+  no app Zapi10 do celular.
+
+  Tambem disponivel pelo Menu Iniciar:
+    Tecla Windows -> digita "Zapi10" -> "Ver Status"
+
+  Para logs detalhados de impressao: clique duplo em "view-logs.bat"
 
 CONFIGURAR NO APLICATIVO ZAPI10:
   No celular, dentro do app Zapi10:

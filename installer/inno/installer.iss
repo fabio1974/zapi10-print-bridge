@@ -43,11 +43,17 @@ Source: "..\windows\print-bridge.exe";    DestDir: "{app}"; Flags: ignoreversion
 Source: "..\windows\print-bridge.xml";    DestDir: "{app}"; Flags: ignoreversion
 Source: "..\windows\LEIA-ME.txt";         DestDir: "{app}"; Flags: ignoreversion isreadme
 Source: "..\windows\view-logs.bat";       DestDir: "{app}"; Flags: ignoreversion
+Source: "..\windows\show-status.bat";     DestDir: "{app}"; Flags: ignoreversion
 Source: "..\windows\jre\*";               DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\Zapi10 Print Bridge - Ver Logs"; Filename: "{app}\view-logs.bat"; WorkingDir: "{app}"
-Name: "{group}\Desinstalar Zapi10 Print Bridge"; Filename: "{uninstallexe}"
+Name: "{group}\Zapi10 - Ver Status (porta + IP)"; Filename: "{app}\show-status.bat"; WorkingDir: "{app}"
+Name: "{group}\Zapi10 - Ver Logs"; Filename: "{app}\view-logs.bat"; WorkingDir: "{app}"
+Name: "{group}\Zapi10 - Desinstalar Print Bridge"; Filename: "{uninstallexe}"
+Name: "{commondesktop}\Zapi10 Status"; Filename: "{app}\show-status.bat"; WorkingDir: "{app}"; Tasks: desktopicon
+
+[Tasks]
+Name: "desktopicon"; Description: "Criar atalho 'Zapi10 Status' na Area de Trabalho"; GroupDescription: "Atalhos:"; Flags: unchecked
 
 [Run]
 Filename: "{app}\print-bridge.exe"; Parameters: "stop"; Flags: runhidden waituntilterminated; StatusMsg: "Parando servico anterior..."

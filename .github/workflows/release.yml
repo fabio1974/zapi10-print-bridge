@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           cd installer/windows
-          7z a ../../zapi10-print-bridge-windows.zip print-bridge.jar print-bridge.exe print-bridge.xml LEIA-ME.txt view-logs.bat install.bat uninstall.bat jre/
+          7z a ../../zapi10-print-bridge-windows.zip print-bridge.jar print-bridge.exe print-bridge.xml LEIA-ME.txt view-logs.bat show-status.bat install.bat uninstall.bat jre/
 
       - name: Upload zip artifact
         uses: actions/upload-artifact@v4
@@ -106,6 +106,7 @@ jobs:
           chmod +x installer/mac/*.command
           cd installer/mac
           zip -qr ../../zapi10-print-bridge-mac.zip *.command *.plist *.jar LEIA-ME.txt jre/
+          cd -
 
       - name: Upload zip
         uses: actions/upload-artifact@v4
@@ -175,6 +176,7 @@ jobs:
           rm -rf /tmp/zapi10-print-bridge
           mkdir -p /tmp/zapi10-print-bridge
           cp -R installer/linux/* /tmp/zapi10-print-bridge/
+          chmod +x /tmp/zapi10-print-bridge/*.sh
           tar -czf zapi10-print-bridge-linux.tar.gz -C /tmp zapi10-print-bridge
 
       - name: Build .deb
