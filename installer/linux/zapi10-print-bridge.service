@@ -1,0 +1,20 @@
+[Unit]
+Description=Zapi10 Print Bridge - TCP/9100 ESC/POS bridge
+Documentation=https://github.com/fabio1974/zapi10-print-bridge
+After=network-online.target cups.service
+Wants=network-online.target cups.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/zapi10-print-bridge/jre/bin/java -jar /usr/local/zapi10-print-bridge/print-bridge.jar
+WorkingDirectory=/usr/local/zapi10-print-bridge
+Environment="PRINT_BRIDGE_PORT=9100"
+Environment="PRINT_BRIDGE_LOG_DIR=/usr/local/zapi10-print-bridge/logs"
+Restart=on-failure
+RestartSec=10
+User=root
+StandardOutput=append:/usr/local/zapi10-print-bridge/logs/systemd-stdout.log
+StandardError=append:/usr/local/zapi10-print-bridge/logs/systemd-stderr.log
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,62 @@
+============================================================
+  ZAPI10 PRINT BRIDGE - INSTALACAO NO LINUX
+============================================================
+
+OPCAO 1 - Pacote nativo (mais simples se voce usa Debian/Ubuntu/Fedora):
+
+  Debian/Ubuntu (.deb):
+    sudo dpkg -i zapi10-print-bridge_X.Y.Z-1_amd64.deb
+
+  Fedora/RHEL/CentOS (.rpm):
+    sudo rpm -i zapi10-print-bridge-X.Y.Z-1.x86_64.rpm
+
+  ATENCAO: pacotes nativos NAO registram servico systemd
+  automaticamente. Voce precisara configurar systemd manualmente
+  ou usar a Opcao 2 abaixo (recomendada para servidor).
+
+OPCAO 2 - Tarball com systemd (recomendada para uso como servico):
+
+  1) Extraia o tar.gz:
+       tar xzf zapi10-print-bridge-linux.tar.gz
+       cd zapi10-print-bridge
+
+  2) Rode o instalador como root:
+       sudo ./install.sh
+
+  Resultado:
+    - Arquivos copiados para /usr/local/zapi10-print-bridge/
+    - Servico systemd 'zapi10-print-bridge' criado e habilitado
+    - Inicia automaticamente no boot
+    - Auto-detect de porta livre (9100 ou alternativa 9110-9120)
+    - Firewall (ufw/firewalld) configurado se presente
+
+PRE-REQUISITO:
+  CUPS instalado e impressora configurada como padrao:
+    lpstat -p          # lista impressoras
+    lpoptions -d NOME  # define como padrao
+    lp -P NOME teste.txt   # imprime teste
+
+VERIFICAR SE ESTA RODANDO:
+    systemctl status zapi10-print-bridge
+    ./view-logs.sh
+
+CONFIGURAR NO APP ZAPI10 MOBILE:
+  1) Menu lateral -> Impressoras
+  2) Adicionar Impressora -> Rede (IP)
+  3) "Descobrir" -> selecionar IP deste Linux
+  4) Ou digitar manualmente <IP>:<PORTA>
+  5) Largura: 58mm ou 80mm
+  6) Teste -> recibo deve sair
+
+DESINSTALAR (Opcao 2):
+    sudo ./uninstall.sh
+
+DESINSTALAR (Opcao 1):
+    sudo apt remove zapi10-print-bridge          # .deb
+    sudo dnf remove zapi10-print-bridge          # .rpm
+
+ONDE FICAM OS LOGS:
+    /usr/local/zapi10-print-bridge/logs/
+    Ou: journalctl -u zapi10-print-bridge
+
+============================================================

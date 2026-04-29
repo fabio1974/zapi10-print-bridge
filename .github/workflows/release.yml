@@ -142,3 +142,96 @@ jobs:
           files: |
             zapi10-print-bridge-mac.zip
             installer/dmg-output/*.dmg
+
+  build-linux-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install rpm-build (for jpackage --type rpm)
+        run: sudo apt-get update && sudo apt-get install -y rpm fakeroot
+
+      - name: Build jar
+        run: mvn -B -q package
+
+      - name: Create minimal JRE for Linux (jlink)
+        run: |
+          jlink \
+            --add-modules java.base,java.desktop,java.logging \
+            --strip-debug --no-man-pages --no-header-files --compress=zip-9 \
+            --output installer/linux/jre
+
+      - name: Build tarball (Nivel 1 com systemd)
+        run: |
+          cp target/print-bridge.jar installer/linux/
+          chmod +x installer/linux/*.sh
+          # Renomeia pra ter um diretorio bonito quando extrair
+          rm -rf /tmp/zapi10-print-bridge
+          mkdir -p /tmp/zapi10-print-bridge
+          cp -R installer/linux/* /tmp/zapi10-print-bridge/
+          tar -czf zapi10-print-bridge-linux.tar.gz -C /tmp zapi10-print-bridge
+
+      - name: Build .deb
+        run: |
+          mkdir -p input
+          cp target/print-bridge.jar input/
+          jpackage \
+            --type deb \
+            --name "zapi10-print-bridge" \
+            --app-version 1.0.0 \
+            --vendor "Zapi10" \
+            --description "Bridge TCP/9100 ESC/POS para impressora local" \
+            --input input \
+            --main-jar print-bridge.jar \
+            --main-class com.zapi10.printbridge.PrintBridge \
+            --java-options "-Xmx256m" \
+            --dest installer/linux-output \
+            --linux-package-name "zapi10-print-bridge"
+
+      - name: Build .rpm
+        run: |
+          jpackage \
+            --type rpm \
+            --name "zapi10-print-bridge" \
+            --app-version 1.0.0 \
+            --vendor "Zapi10" \
+            --description "Bridge TCP/9100 ESC/POS para impressora local" \
+            --input input \
+            --main-jar print-bridge.jar \
+            --main-class com.zapi10.printbridge.PrintBridge \
+            --java-options "-Xmx256m" \
+            --dest installer/linux-output \
+            --linux-package-name "zapi10-print-bridge"
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: zapi10-print-bridge-linux-tar
+          path: zapi10-print-bridge-linux.tar.gz
+
+      - name: Upload deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: zapi10-print-bridge-linux-deb
+          path: installer/linux-output/*.deb
+
+      - name: Upload rpm
+        uses: actions/upload-artifact@v4
+        with:
+          name: zapi10-print-bridge-linux-rpm
+          path: installer/linux-output/*.rpm
+
+      - name: Attach to Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            zapi10-print-bridge-linux.tar.gz
+            installer/linux-output/*.deb
+            installer/linux-output/*.rpm
