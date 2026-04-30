@@ -6,7 +6,7 @@
 
     <groupId>com.zapi10</groupId>
     <artifactId>print-bridge</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <name>Zapi10 Print Bridge</name>

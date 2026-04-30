@@ -60,7 +60,9 @@ Filename: "{app}\print-bridge.exe"; Parameters: "stop"; Flags: runhidden waitunt
 Filename: "{app}\print-bridge.exe"; Parameters: "uninstall"; Flags: runhidden waituntilterminated; StatusMsg: "Removendo instalacao anterior..."
 Filename: "{app}\print-bridge.exe"; Parameters: "install"; Flags: runhidden waituntilterminated; StatusMsg: "Instalando servico Windows..."
 Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Zapi10 Print Bridge"""; Flags: runhidden waituntilterminated
+Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Zapi10 Print Bridge HTTP"""; Flags: runhidden waituntilterminated
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=""Zapi10 Print Bridge"" dir=in action=allow protocol=TCP localport=9100"; Flags: runhidden waituntilterminated; StatusMsg: "Abrindo porta 9100 no firewall..."
+Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=""Zapi10 Print Bridge HTTP"" dir=in action=allow protocol=TCP localport=9101"; Flags: runhidden waituntilterminated; StatusMsg: "Abrindo porta 9101 (HTTP) no firewall..."
 Filename: "{app}\print-bridge.exe"; Parameters: "start"; Flags: runhidden waituntilterminated; StatusMsg: "Iniciando servico..."
 Filename: "{app}\LEIA-ME.txt"; Description: "Abrir LEIA-ME"; Flags: postinstall shellexec skipifsilent unchecked
 
@@ -68,6 +70,7 @@ Filename: "{app}\LEIA-ME.txt"; Description: "Abrir LEIA-ME"; Flags: postinstall 
 Filename: "{app}\print-bridge.exe"; Parameters: "stop"; Flags: runhidden waituntilterminated
 Filename: "{app}\print-bridge.exe"; Parameters: "uninstall"; Flags: runhidden waituntilterminated
 Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Zapi10 Print Bridge"""; Flags: runhidden waituntilterminated
+Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Zapi10 Print Bridge HTTP"""; Flags: runhidden waituntilterminated
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\logs"

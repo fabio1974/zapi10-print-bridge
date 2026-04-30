@@ -75,9 +75,11 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo [3/4] Abrindo porta !PORT! no firewall do Windows...
+echo [3/4] Abrindo portas !PORT! e 9101 no firewall do Windows...
 netsh advfirewall firewall delete rule name="Zapi10 Print Bridge" >nul 2>&1
+netsh advfirewall firewall delete rule name="Zapi10 Print Bridge HTTP" >nul 2>&1
 netsh advfirewall firewall add rule name="Zapi10 Print Bridge" dir=in action=allow protocol=TCP localport=!PORT! >nul
+netsh advfirewall firewall add rule name="Zapi10 Print Bridge HTTP" dir=in action=allow protocol=TCP localport=9101 >nul
 
 echo [4/4] Iniciando servico...
 print-bridge.exe start
@@ -95,7 +97,8 @@ echo.
 echo O servico "Zapi10 Print Bridge" agora roda em background.
 echo Ele inicia automaticamente quando o Windows liga.
 echo.
-echo PORTA EM USO: !PORT!
+echo PORTA TCP (mobile):  !PORT!
+echo PORTA HTTP (browser): 9101
 echo Configure no app Zapi10 mobile: ^<IP-deste-PC^>:!PORT!
 echo.
 echo Logs em: %~dp0logs

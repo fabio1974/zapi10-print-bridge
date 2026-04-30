@@ -19,6 +19,8 @@
     <dict>
         <key>PRINT_BRIDGE_PORT</key>
         <string>9100</string>
+        <key>PRINT_BRIDGE_HTTP_PORT</key>
+        <string>9101</string>
         <key>PRINT_BRIDGE_LOG_DIR</key>
         <string>/usr/local/zapi10-print-bridge/logs</string>
     </dict>

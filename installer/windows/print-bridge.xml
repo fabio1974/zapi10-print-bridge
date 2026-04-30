@@ -19,6 +19,7 @@
     </log>
 
     <env name="PRINT_BRIDGE_PORT" value="9100"/>
+    <env name="PRINT_BRIDGE_HTTP_PORT" value="9101"/>
     <env name="PRINT_BRIDGE_LOG_DIR" value="%BASE%\logs"/>
 
     <startmode>Automatic</startmode>

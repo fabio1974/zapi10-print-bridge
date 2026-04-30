@@ -61,11 +61,13 @@ echo "[3/5] Instalando systemd unit..."
 cp zapi10-print-bridge.service "$SERVICE_FILE"
 systemctl daemon-reload
 
-echo "[4/5] Abrindo porta $PORT no firewall (se aplicavel)..."
+echo "[4/5] Abrindo portas $PORT e 9101 no firewall (se aplicavel)..."
 if command -v ufw >/dev/null 2>&1; then
     ufw allow "$PORT"/tcp >/dev/null 2>&1 || true
+    ufw allow 9101/tcp >/dev/null 2>&1 || true
 elif command -v firewall-cmd >/dev/null 2>&1; then
     firewall-cmd --permanent --add-port="$PORT"/tcp >/dev/null 2>&1 || true
+    firewall-cmd --permanent --add-port=9101/tcp >/dev/null 2>&1 || true
     firewall-cmd --reload >/dev/null 2>&1 || true
 fi
 

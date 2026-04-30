@@ -1,5 +1,8 @@
 package com.zapi10.printbridge;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+
 import javax.print.DocFlavor;
 import javax.print.PrintException;
 import javax.print.PrintService;
@@ -8,6 +11,8 @@ import javax.print.SimpleDoc;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -20,8 +25,9 @@ import java.time.format.DateTimeFormatter;
 
 public final class PrintBridge {
 
-    private static final String VERSION = "1.0.0";
+    private static final String VERSION = "1.0.4";
     private static final int PORT = parseEnvInt("PRINT_BRIDGE_PORT", 9100);
+    private static final int HTTP_PORT = parseEnvInt("PRINT_BRIDGE_HTTP_PORT", 9101);
     private static final String PRINTER_NAME = System.getenv("PRINT_BRIDGE_PRINTER");
     private static final int IDLE_TIMEOUT_MS = parseEnvInt("PRINT_BRIDGE_IDLE_TIMEOUT_MS", 2000);
 
@@ -30,7 +36,7 @@ public final class PrintBridge {
         Logger.info("=== Zapi10 Print Bridge v" + VERSION + " ===");
         Logger.info("Java " + System.getProperty("java.version") + " | " + System.getProperty("os.name") + " " + System.getProperty("os.version"));
         Logger.info("Log file: " + Logger.currentFile());
-        Logger.info("Listening on TCP port " + PORT);
+        Logger.info("Listening on TCP port " + PORT + " (raw ESC/POS) | HTTP port " + HTTP_PORT + " (browser)");
         PrintService chosen = resolvePrinter();
         if (chosen == null) {
             Logger.warn("Nenhuma impressora encontrada no SO. Conecte uma e configure como padrão.");
@@ -39,6 +45,8 @@ public final class PrintBridge {
                     + (PRINTER_NAME == null ? " (default do SO)" : " (env PRINT_BRIDGE_PRINTER)"));
         }
         listAvailablePrinters();
+
+        startHttpServer();
 
         try (ServerSocket server = new ServerSocket(PORT)) {
             while (true) {
@@ -49,6 +57,92 @@ public final class PrintBridge {
             Logger.error("Falhou ao abrir porta " + PORT + ": " + e.getMessage());
             System.exit(1);
         }
+    }
+
+    /**
+     * HTTP server pra o FE (browsers) chamarem direto.
+     * Endpoints:
+     *   GET  /health  → 200 {"ok":true,"version":"1.0.4","printer":"..."}
+     *   POST /print   → recebe bytes ESC/POS, encaminha pro spooler
+     *   OPTIONS *     → CORS preflight
+     */
+    private static void startHttpServer() {
+        try {
+            HttpServer http = HttpServer.create(new InetSocketAddress(HTTP_PORT), 0);
+            http.createContext("/health", PrintBridge::handleHealth);
+            http.createContext("/print", PrintBridge::handlePrintHttp);
+            http.setExecutor(null);
+            http.start();
+            Logger.info("HTTP server pronto em http://localhost:" + HTTP_PORT + " (browser/FE)");
+        } catch (IOException e) {
+            Logger.error("Falhou ao subir HTTP server na porta " + HTTP_PORT + ": " + e.getMessage());
+        }
+    }
+
+    private static void addCorsHeaders(HttpExchange ex) {
+        ex.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        ex.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        ex.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        ex.getResponseHeaders().add("Access-Control-Max-Age", "3600");
+    }
+
+    private static void handleHealth(HttpExchange ex) throws IOException {
+        addCorsHeaders(ex);
+        if ("OPTIONS".equalsIgnoreCase(ex.getRequestMethod())) {
+            ex.sendResponseHeaders(204, -1);
+            return;
+        }
+        PrintService printer = resolvePrinter();
+        String name = printer == null ? "" : printer.getName().replace("\"", "\\\"");
+        String body = "{\"ok\":true,\"version\":\"" + VERSION + "\",\"printer\":\"" + name + "\","
+                + "\"tcpPort\":" + PORT + ",\"httpPort\":" + HTTP_PORT + "}";
+        byte[] bytes = body.getBytes("UTF-8");
+        ex.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
+        ex.sendResponseHeaders(200, bytes.length);
+        try (OutputStream out = ex.getResponseBody()) {
+            out.write(bytes);
+        }
+    }
+
+    private static void handlePrintHttp(HttpExchange ex) throws IOException {
+        addCorsHeaders(ex);
+        if ("OPTIONS".equalsIgnoreCase(ex.getRequestMethod())) {
+            ex.sendResponseHeaders(204, -1);
+            return;
+        }
+        if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
+            String msg = "{\"error\":\"Method not allowed. Use POST com bytes ESC/POS no body.\"}";
+            byte[] b = msg.getBytes("UTF-8");
+            ex.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
+            ex.sendResponseHeaders(405, b.length);
+            try (OutputStream out = ex.getResponseBody()) { out.write(b); }
+            return;
+        }
+        byte[] payload;
+        try (InputStream in = ex.getRequestBody(); ByteArrayOutputStream buf = new ByteArrayOutputStream()) {
+            byte[] chunk = new byte[4096];
+            int n;
+            while ((n = in.read(chunk)) != -1) buf.write(chunk, 0, n);
+            payload = buf.toByteArray();
+        }
+        String origin = ex.getRemoteAddress().toString();
+        if (payload.length == 0) {
+            String msg = "{\"error\":\"Body vazio. Envie bytes ESC/POS.\"}";
+            byte[] b = msg.getBytes("UTF-8");
+            ex.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
+            ex.sendResponseHeaders(400, b.length);
+            try (OutputStream out = ex.getResponseBody()) { out.write(b); }
+            return;
+        }
+        Logger.info("[HTTP] Recebidos " + payload.length + " bytes de " + origin);
+        boolean ok = printRawSync(payload, "[HTTP] " + origin);
+        String body = ok
+                ? "{\"ok\":true,\"bytes\":" + payload.length + "}"
+                : "{\"ok\":false,\"error\":\"Falha ao imprimir — verifique logs\"}";
+        byte[] b = body.getBytes("UTF-8");
+        ex.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
+        ex.sendResponseHeaders(ok ? 200 : 500, b.length);
+        try (OutputStream out = ex.getResponseBody()) { out.write(b); }
     }
 
     private static void handleClient(Socket socket) {
@@ -78,10 +172,15 @@ public final class PrintBridge {
     }
 
     private static synchronized void printRaw(byte[] data, String origin) {
+        printRawSync(data, origin);
+    }
+
+    /** Versão da printRaw que retorna sucesso/falha (usado pelo handler HTTP). */
+    private static synchronized boolean printRawSync(byte[] data, String origin) {
         PrintService printer = resolvePrinter();
         if (printer == null) {
             Logger.error("Nenhuma impressora disponível — descartando " + data.length + " bytes (origem " + origin + ")");
-            return;
+            return false;
         }
         long t0 = System.currentTimeMillis();
         try {
@@ -89,8 +188,10 @@ public final class PrintBridge {
             printer.createPrintJob().print(doc, null);
             long ms = System.currentTimeMillis() - t0;
             Logger.info("Impresso " + data.length + " bytes em '" + printer.getName() + "' (" + ms + "ms, origem " + origin + ")");
+            return true;
         } catch (PrintException e) {
             Logger.error("Falha ao imprimir em '" + printer.getName() + "' (origem " + origin + "): " + e.getMessage());
+            return false;
         }
     }
 

@@ -9,6 +9,7 @@ Type=simple
 ExecStart=/usr/local/zapi10-print-bridge/jre/bin/java -jar /usr/local/zapi10-print-bridge/print-bridge.jar
 WorkingDirectory=/usr/local/zapi10-print-bridge
 Environment="PRINT_BRIDGE_PORT=9100"
+Environment="PRINT_BRIDGE_HTTP_PORT=9101"
 Environment="PRINT_BRIDGE_LOG_DIR=/usr/local/zapi10-print-bridge/logs"
 Restart=on-failure
 RestartSec=10
