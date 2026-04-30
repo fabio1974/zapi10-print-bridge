@@ -31,3 +31,6 @@ installer/*/logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code (per-user)
+.claude/settings.local.json

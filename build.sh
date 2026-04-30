@@ -46,7 +46,7 @@ echo "=== [2/5] Gerando JRE mínima para Mac ==="
 rm -rf installer/mac/jre
 "$JAVA_HOME/bin/jlink" \
   --module-path "$JAVA_HOME/jmods" \
-  --add-modules java.base,java.desktop,java.logging \
+  --add-modules java.base,java.desktop,java.logging,jdk.httpserver \
   --strip-debug --no-man-pages --no-header-files --compress=zip-9 \
   --output installer/mac/jre
 echo "OK: installer/mac/jre/ ($(du -sh installer/mac/jre | cut -f1))"
@@ -67,7 +67,7 @@ fi
 rm -rf installer/windows/jre
 "$JAVA_HOME/bin/jlink" \
   --module-path "$WIN_JDK_DIR/jmods" \
-  --add-modules java.base,java.desktop,java.logging \
+  --add-modules java.base,java.desktop,java.logging,jdk.httpserver \
   --strip-debug --no-man-pages --no-header-files --compress=zip-9 \
   --output installer/windows/jre
 echo "OK: installer/windows/jre/ ($(du -sh installer/windows/jre | cut -f1))"
